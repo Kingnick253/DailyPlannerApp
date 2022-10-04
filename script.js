@@ -1,66 +1,101 @@
+console.log("hello world");
+const rows = $(".container");
+const saveBtn = $(".savebtn");
 const m = moment();
-const saveButton = $(".savebtn");
-const box = $(".description")
 const timeArr = [
-  "9AM",
-  "10AM",
-  "11AM",
-  "12AM",
-  "1PM",
-  "2PM",
-  "3PM",
-  "4PM",
-  "5PM",
-];
+    "9AM",
+    "10AM",
+    "11AM",
+    "12AM",
+    "1PM",
+    "2PM",
+    "3PM",
+    "4PM",
+    "5PM",
+  ];
+
+
+//declare current time
 const currentTime = moment().hour();
 
 console.log(m.format("MMMM Do YYYY, h:mm:ss a"));
 window.setInterval(function () {
-  $("#currentDay").html(moment().format("ddd MM/DD/YYYY H:mm:ss"));
+  $("#currentDay").html(moment().format("ddd MM/DD/YYYY h:mm:ss a"));
 }, 1000);
 
 
+    function changeColor(){
+      $(".time-block").each(function(){
+        const time = parseInt($(this).attr("id"))
 
-function saveLocalStorage(event){
-    console.log(event.target);
-    // need to make it so will only target save button not other events. )
-    if(!event.target.matches("button")){
-      console.log("not a button");
-      return
+        if(currentTime < time){
+          $(this).addClass("future");
+        }else if(currentTime === time){
+          $(this).addClass("present");
+        }else{
+          $(this).addClass("past");
+        }
+      })
     }
-    let lsKey = event.target.parentElement.getAttribute("id");
-    let textBoxValue = event.target.previousElementSibling.value;
-    console.log(textBoxValue);
-    console.log(lsKey);
-    localStorage.setItem(lsKey, textBoxValue);
-    //i need to save this info into local storage
-    // then display any local storage data in the apporiate time block in a new function.
+
+//Declare current day element
+
+//Declare time Entries container element
+
+//render a block for each hour of the day 
+
+//for loop
+function createRow(){
+for( let i = 0; i < timeArr.length; i++ ) {
+
+// Attempt to get the saved data for the hour of the loop
+    let Key = `hour-${i}`
+    let data = " ";
+    // console.log(timeArr[i]);
+
+    var template =`
+      <div id class="row time-block">
+            <div class="col-md-1 hour">${timeArr[i]}</div>
+           <textarea  class="col-md-10 description">${data}</textarea>
+           <button data-hour="${i}" type="button" class="saveBtn">Save</button>
+      </div>
+
+    `;
+    //  Append the html to the container element
     
+     rows.append(template);  
+  }
 }
-  
-  document.addEventListener("click", test);
-    console.log("the save button works!");
-  // 1. new function that is going to run when the page loads
-  // need some 
-  // will have to call this function at the bottom of page ex: function();
-  //need to select t9am id 
-  // then set the value of t9am to = the value of localstorage at the key time-9am
-  // right this for each time black 
 
-// const timeBlockDisplay = () =>{
-//     let time = '';
 
-//     for(let i = timeArr; timeArr < 9; timeArr++){
-//         time = timeArr;
+createRow();
+changeColor();
+saveLocalStorage();
+// Save an hour to local storage
+function saveLocalStorage(){
+  const storage = JSON.parse(window.localStorage.getItem("data"));
+  console.log(storage);
+  $(".description").each(function() {
+    const time = $(this).parent().attr("id");
+    for(let i = 0; i < storage.length; i++){
+      const dataEl = storage[i];
+      if(time ==  dataEl.time){
+        $(this).text(dataEl.value);
+      }
+    }
+  })
 
-//         let timeBlock =
-//         `
-//         <div id="time-9AM" class="row time-block">
-//             <div class="col-md-1 hour">${time}</div>
-//             <textarea class="col-md-10 description"></textarea>
-//             <button type="button" class="saveBtn">Save</button>
-//         </div>
-//         `
-//     }
-// }
-//  timeBlockDisplay()
+}
+
+
+// Set up a "click" event listner on container
+saveBtn.on("click", "button", function(event){
+    console.log(event.target);
+    event.preventDefault();
+    const time = $(this).parent().attr("id");
+    const textData = $(this).siblings(".description").val();
+    const convert = JSON.parse(window.localStorage.getItem("data")) || [];
+    convert.push({time, textData});
+    window.localStorage.setItem("data", JSON.stringify(convert))
+
+});

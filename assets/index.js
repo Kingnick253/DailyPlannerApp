@@ -20,7 +20,7 @@ const currentTime = moment().hour();
 
 console.log(m.format("MMMM Do YYYY, h:mm:ss a"));
 window.setInterval(function () {
-  $("#currentDay").html(moment().format("ddd MM/DD/YYYY H:mm:ss"));
+  $("#currentDay").html(moment().format("ddd MM/DD/YYYY h:mm:ss a"));
 }, 1000);
 
 
@@ -30,6 +30,7 @@ window.setInterval(function () {
 
         if(currentTime < time){
           $(this).addClass("future");
+          console.log(currentTime);
         }else if(currentTime === time){
           $(this).addClass("present");
         }else{
@@ -54,10 +55,10 @@ for( let i = 0; i < timeArr.length; i++ ) {
     // console.log(timeArr[i]);
 
     var template =`
-    <div id="time-9AM" class="row time-block">
+      <div class="row time-block">
             <div class="col-md-1 hour">${timeArr[i]}</div>
-           <textarea id = "tim" class="col-md-10 description">${data}</textarea>
-           <button data-hour="${i}" type="button" class="saveBtn">Save</button>
+           <textarea  class="col-md-10 description">${data}</textarea>
+           <button data-hour="${i}" type="button" class="saveBtn col-md-1">Save</button>
       </div>
 
     `;
@@ -68,28 +69,36 @@ for( let i = 0; i < timeArr.length; i++ ) {
 }
 
 
-createRow();
-changeColor();
 
 // Save an hour to local storage
+function saveLocalStorage(){
+  const storage = JSON.parse(window.localStorage.getItem("data"));
+  console.log(storage);
+  $(".description").each(function() {
+    const time = $(this).parent().attr("id");
+    for(let i = 0; i < storage; i++){
+      const dataEl = storage[i];
+      if(time ==  dataEl.time){
+        $(this).text(dataEl.value);
+      }
+    }
+  })
+
+}
 
 
 // Set up a "click" event listner on container
-containerEl.on("click", "button", function(event){
+saveBtn.on("click", "button", function(event){
     console.log(event.target);
-    var buttonHour = $(event.target).data("hour");
-    localStorage.setItem(("hour-" + buttonHour), $("#" + buttonHour).val());
-    //Fetch the hour from the clicked button's (event.target) "data-hour" attribute.
-
-    //Use the hour to create a key for local storage
-
-    // from the clicked button, traverse the DOM to nearby <textarea> to fetch its value
-
-    // use the key and the value to save into local storage.
-
-
-
+    event.preventDefault();
+    const time = $(this).parent().attr("id");
+    const textData = $(this).siblings(".description").val();
+    const convert = JSON.parse(window.localStorage.getItem("data")) || [];
+    convert.push({time, textData});
+    window.localStorage.setItem("data", JSON.stringify(convert))
 
 });
-
+createRow();
+changeColor();
+saveLocalStorage();
 
