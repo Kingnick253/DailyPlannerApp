@@ -22,7 +22,7 @@ const timeArr = [
 
 
 
-
+    // updates the time element
     window.setInterval(function () {
       $("#currentDay").html(moment().format("ddd MM/DD/YYYY h:mm:ss a"));
     }, 1000);
